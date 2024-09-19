@@ -1,8 +1,23 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewBag.Title = "Inicio";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Ruta al layout que deseas utilizar
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+<main>
+
+    <div class="text-center">
+        <h1 class="display-4"> Bienvenido @ViewData["nameUser"]</h1>
+    </div>
+
+    <section id="about">
+
+        <h2>Sobre Nosotros</h2>
+        <p>Blog USC es un espacio digital creado para la comunidad de la Universidad Santiago de Cali, donde estudiantes, profesores y colaboradores pueden compartir sus conocimientos, experiencias y opiniones.</p>
+    </section>
+
+    <section id="posts">
+        <h2>Últimas Publicaciones</h2>
+        <!-- Aquí puedes agregar código para mostrar las publicaciones -->
+    </section>
+</main>

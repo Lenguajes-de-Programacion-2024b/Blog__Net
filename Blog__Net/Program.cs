@@ -6,6 +6,7 @@ using Blog__Net.Servicios.Implementacion;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Inicio/Login";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
     });
+
+builder.Services.AddControllersWithViews(options => {
+    options.Filters.Add(
+        new ResponseCacheAttribute
+        {
+            NoStore =true,
+            Location=ResponseCacheLocation.None,
+        }
+
+    );
+});
 
 var app = builder.Build();
 
