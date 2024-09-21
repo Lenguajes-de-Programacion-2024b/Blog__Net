@@ -1,33 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using Blog__Net.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Blog__Net.Models;
+namespace Blog__Net.Data;
 
 public partial class DbBlogContext : DbContext
 {
-    public DbBlogContext()
-    {
-    }
 
     public DbBlogContext(DbContextOptions<DbBlogContext> options)
         : base(options)
     {
     }
 
-    public virtual DbSet<Comment> Comments { get; set; }
+    public virtual DbSet<Comments> Comments { get; set; }
 
     public virtual DbSet<InfoUser> InfoUsers { get; set; }
 
-    public virtual DbSet<Post> Posts { get; set; }
+    public virtual DbSet<Posts> Posts { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Roles> Roles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Comment>(entity =>
+        modelBuilder.Entity<Comments>(entity =>
         {
             entity.HasKey(e => e.CommentId).HasName("PK__Comments__C3B4DFCA00CE2FF2");
 
@@ -70,7 +68,7 @@ public partial class DbBlogContext : DbContext
                 .HasConstraintName("fk_InfoUser_Roles");
         });
 
-        modelBuilder.Entity<Post>(entity =>
+        modelBuilder.Entity<Posts>(entity =>
         {
             entity.HasKey(e => e.PostId).HasName("PK__Posts__AA126018E263DA79");
 
@@ -84,7 +82,7 @@ public partial class DbBlogContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<Roles>(entity =>
         {
             entity.HasKey(e => e.RolId).HasName("PK__Roles__F92302F11E40ABEB");
 

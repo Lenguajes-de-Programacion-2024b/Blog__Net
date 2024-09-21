@@ -113,25 +113,41 @@ namespace Blog__Net.Controllers
                 return View();
             }
 
-            // Autenticación exitosa
-            List<Claim> claims = new List<Claim>()
+            // Obtener el nombre del rol basado en rolId
+    string roleName = null;
+    if (user_found.RolId.HasValue)
     {
-        new Claim(ClaimTypes.Name, user_found.UserName)
+        roleName = await _infoUserService.GetRoleNameById(user_found.RolId.Value);
+    }
+
+    if (string.IsNullOrEmpty(roleName))
+    {
+        ViewBag.Message = "El usuario no tiene un rol asignado.";
+        return View();
+    }
+
+    // Autenticación exitosa: Añadir Claims (Nombre y Rol)
+    List<Claim> claims = new List<Claim>()
+    {
+        new Claim(ClaimTypes.Name, user_found.UserName),
+        new Claim(ClaimTypes.Role, roleName) // Usar el nombre del rol
     };
 
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            AuthenticationProperties properties = new AuthenticationProperties()
-            {
-                AllowRefresh = true,
-            };
+    ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    AuthenticationProperties properties = new AuthenticationProperties()
+    {
+        AllowRefresh = true,
+        IsPersistent = true,
+        ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(20)
+    };
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                properties
-            );
+    await HttpContext.SignInAsync(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        new ClaimsPrincipal(claimsIdentity),
+        properties
+    );
 
-            return RedirectToAction("Index", "Home");
-        }
+    return RedirectToAction("Index", "Home");
+}
     }
 }

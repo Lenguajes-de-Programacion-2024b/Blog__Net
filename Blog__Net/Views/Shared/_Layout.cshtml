@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - Blog USC</title>
     <link rel="stylesheet" href="~/css/site.css" />
+
 </head>
 <body>
     <header>
@@ -14,6 +15,7 @@
                 <li>@Html.ActionLink("Inicio", "Index", "Home")</li>
                 <li>@Html.ActionLink("Publicaciones", "Posts", "Home")</li>
                 <li>@Html.ActionLink("Listado Me Gusta", "Listado", "Home")</li>
+                <li>@Html.ActionLink("Crear nueva publicación", "Create", "Post")</li> <!-- Este es el enlace al formulario -->
                 <li>@Html.ActionLink("Cerrar sesion", "logout", "Home")</li>
             </ul>
         </nav>
