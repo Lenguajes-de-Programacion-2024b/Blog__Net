@@ -15,10 +15,10 @@ public partial class InfoUser
     public string? Passcode { get; set; }
     public int? RolId { get; set; }
 
-    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public virtual ICollection<Comments> Comments { get; set; } = new List<Comments>();
 
-    public virtual Role? Rol { get; set; }
+    public virtual Roles? Rol { get; set; }
 
     [NotMapped]
-    public string ConfirmPasscode { get; set; } // No se guardará en la BD
+    public string? ConfirmPasscode { get; set; } // No se guardará en la BD
 }

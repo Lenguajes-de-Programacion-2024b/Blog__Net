@@ -8,5 +8,6 @@ namespace Blog__Net.Servicios.Contrato
         Task<InfoUser> GetInfoUser(string Email, string Passcode);
         Task<InfoUser> SaveInfoUser(InfoUser modelo);
         Task<bool> UserExists(string userName, string email);
+        Task<string> GetRoleNameById(int rolId);
     }
 }

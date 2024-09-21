@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Blog__Net.Models;
 
-public partial class Role
+public partial class Roles
 {
     public int RolId { get; set; }
 
     public string? RolName { get; set; }
+    public ICollection<InfoUser>? InfoUsers { get; set; }
 
-    public virtual ICollection<InfoUser> InfoUsers { get; set; } = new List<InfoUser>();
 }

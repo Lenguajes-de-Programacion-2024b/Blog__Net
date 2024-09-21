@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Blog__Net.Data.Enums;
+using System;
 using System.Collections.Generic;
 
 namespace Blog__Net.Models;
 
-public partial class Post
+public partial class Posts
 {
     public int PostId { get; set; }
 
@@ -11,9 +12,9 @@ public partial class Post
 
     public string? Content { get; set; }
 
-    public string? Category { get; set; }
+    public CategoriaEnum Category { get; set; }
 
     public DateTime? Publicationdate { get; set; }
 
-    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public virtual ICollection<Comments> Comments { get; set; } = new List<Comments>();
 }

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Blog__Net.Models;
 
 using Blog__Net.Servicios.Contrato;
 using Blog__Net.Servicios.Implementacion;
@@ -7,11 +6,14 @@ using Blog__Net.Servicios.Implementacion;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Blog__Net.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSingleton(new Contexto(builder.Configuration.GetConnectionString("cadenaSQL")));
 
 builder.Services.AddDbContext<DbBlogContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("cadenaSQL"));
