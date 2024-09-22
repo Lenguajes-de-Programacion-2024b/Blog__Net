@@ -27,7 +27,7 @@ namespace Blog_.Net.Controllers
         public IActionResult Create()
         {
 
-            return View();
+            return View(new Posts());
         }
 
         [HttpPost]

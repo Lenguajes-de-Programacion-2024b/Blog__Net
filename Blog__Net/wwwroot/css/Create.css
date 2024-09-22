@@ -1,0 +1,60 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+h2 {
+    text-align: center;
+}
+
+footer {
+    background: #004080;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+    position: relative;
+    padding-top: 20px;
+}
+
+main {
+    flex: 1;
+}
+
+.btn.Post_btn {
+    background-color: #004080;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+    .btn.Post_btn:hover {
+        background-color: #003366;
+    }
+
+form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#content-editor {
+    height: 500px;
+    resize: vertical;
+}
