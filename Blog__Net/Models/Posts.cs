@@ -14,7 +14,7 @@ public partial class Posts
 
     public CategoriaEnum Category { get; set; }
 
-    public DateTime? Publicationdate { get; set; }
+    public DateTime Publicationdate { get; set; }
 
     public virtual ICollection<Comments> Comments { get; set; } = new List<Comments>();
 }

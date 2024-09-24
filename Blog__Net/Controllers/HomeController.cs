@@ -1,54 +1,60 @@
+using Blog__Net.Data.ServicePost;
+using Blog__Net.Data;
 using Blog__Net.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using System.Security.Claims;
 
-namespace Blog__Net.Controllers
+using Blog__Net.Data.Enums;
+using X.PagedList;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+
+namespace Blog__Net.Controllers;
+
+
+public class HomeController : Controller
 {
-    [Authorize]
-    public class HomeController : Controller
+    private readonly Contexto _contexto;
+    private readonly PostService _postservice;
+
+    public HomeController(Contexto contexto)
     {
-        private readonly ILogger<HomeController> _logger;
+        _contexto = contexto;
+        _postservice = new PostService(contexto);
+    }
 
-        public HomeController(ILogger<HomeController> logger)
+    public IActionResult Index(string category, string search, int? page)
+    {
+        var post = new List<Posts>();
+        if (string.IsNullOrEmpty(category) && string.IsNullOrEmpty(search))
+            post = _postservice.ObtainPosts();
+
+        else if (!string.IsNullOrEmpty(category))
         {
-            _logger = logger;
+            var categoriaEnum=Enum.Parse<CategoriaEnum>(category);
+            post=_postservice.ObtainPostsByCategory(categoriaEnum);
+
+            if (post.Count == 0)
+                ViewBag.Error = $"No se encontraron publicaciones en la categoria {categoriaEnum}.";
+        }
+        else if (string.IsNullOrEmpty(search))
+        {
+            post=_postservice.ObtainPostsByTitle(search);
+            if(post.Count == 0)
+                ViewBag.Error = $"No se encontraron publicaciones en la categoria {search}.";
         }
 
-        public IActionResult Index()
-        {
-            ClaimsPrincipal claimuser = HttpContext.User;
-            string nameUser = "";
+        int pageSize = 6;
+        int pageNumber = (page ?? 1);
 
-            if (claimuser.Identity.IsAuthenticated)
-            {
-                nameUser = claimuser.Claims.Where(c=>c.Type == ClaimTypes.Name)
-                    .Select(c=>c.Value).SingleOrDefault();
-            }
+        string categorydescription = !string.IsNullOrEmpty(category) ? CategoriaEnumHelper.ObtainDescription(Enum.Parse<CategoriaEnum>(category)):"Todas las demás";
+        ViewBag.CategoriaDescription = categorydescription;
 
-            ViewData["nameUser"] = nameUser;
+        return View(post.ToPagedList(pageNumber, pageSize));
+    }
 
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        public async Task<IActionResult> logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login", "Inicio");
-        }
+    public async Task<IActionResult> logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction("Login", "Inicio");
     }
 }

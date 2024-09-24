@@ -8,7 +8,7 @@ public partial class InfoUser
 {
     public int IdUser { get; set; }
 
-    public string? UserName { get; set; }
+    public string UserName { get; set; }
 
     public string? Email { get; set; }
 
