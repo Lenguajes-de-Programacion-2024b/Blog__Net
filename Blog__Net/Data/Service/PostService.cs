@@ -37,7 +37,8 @@ namespace Blog__Net.Data.ServicePost
                                 Title = (string)reader["Title"],
                                 Content = (string)reader["Content"],
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
-                                Publicationdate = (DateTime)reader["Publicationdate"]
+                                Publicationdate = (DateTime)reader["Publicationdate"],
+                                UserName = (string)reader["UserName"]
                             };
                         }
                         reader.Close();
@@ -110,29 +111,33 @@ namespace Blog__Net.Data.ServicePost
             return posts;
         }
 
-        public List<Posts> ObtainPostsByTitle(string title)
+        public List<Posts> ObtainPostsByFilter(string search = null, DateTime? publicationDate = null)
         {
             var posts = new List<Posts>();
 
             using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
-                using (SqlCommand cmd = new("getpostbyTitle", connection))
+                using (SqlCommand cmd = new SqlCommand("getPostsByFilter", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@Title", title);
+                    cmd.Parameters.AddWithValue("@Search", (object)search ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@PublicationDate", (object)publicationDate?.Date ?? DBNull.Value);
+
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            posts.Add(new Posts
+                            var post = new Posts
                             {
                                 PostId = (int)reader["PostId"],
                                 Title = (string)reader["Title"],
                                 Content = (string)reader["Content"],
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
-                                Publicationdate = (DateTime)reader["Publicationdate"]
-                            });
+                                Publicationdate = (DateTime)reader["Publicationdate"],
+                                UserName = (string)reader["UserName"]
+                            };
+                            posts.Add(post);
                         }
                     }
                 }

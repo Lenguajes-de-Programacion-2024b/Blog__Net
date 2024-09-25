@@ -22,34 +22,41 @@ public class HomeController : Controller
         _postservice = new PostService(contexto);
     }
 
-    public IActionResult Index(string category, string search, int? page)
+    public IActionResult Index(string category, string search, DateTime? publicationDate, int? page)
     {
-        var post = new List<Posts>();
-        if (string.IsNullOrEmpty(category) && string.IsNullOrEmpty(search))
-            post = _postservice.ObtainPosts();
+        var posts = new List<Posts>();
 
+        if (string.IsNullOrEmpty(category) && string.IsNullOrEmpty(search) && publicationDate == null)
+        {
+            posts = _postservice.ObtainPosts();
+        }
         else if (!string.IsNullOrEmpty(category))
         {
-            var categoriaEnum=Enum.Parse<CategoriaEnum>(category);
-            post=_postservice.ObtainPostsByCategory(categoriaEnum);
+            var categoriaEnum = Enum.Parse<CategoriaEnum>(category);
+            posts = _postservice.ObtainPostsByCategory(categoriaEnum);
 
-            if (post.Count == 0)
-                ViewBag.Error = $"No se encontraron publicaciones en la categoria {categoriaEnum}.";
+            if (posts.Count == 0)
+                ViewBag.Error = $"No se encontraron publicaciones en la categoría {categoriaEnum}.";
         }
-        else if (string.IsNullOrEmpty(search))
+        else
         {
-            post=_postservice.ObtainPostsByTitle(search);
-            if(post.Count == 0)
-                ViewBag.Error = $"No se encontraron publicaciones en la categoria {search}.";
+            // Búsqueda por palabras clave en título, nombre de usuario, y/o fecha
+            posts = _postservice.ObtainPostsByFilter(search, publicationDate);
+
+            if (posts.Count == 0)
+                ViewBag.Error = $"No se encontraron publicaciones con los criterios proporcionados.";
         }
 
         int pageSize = 6;
         int pageNumber = (page ?? 1);
 
-        string categorydescription = !string.IsNullOrEmpty(category) ? CategoriaEnumHelper.ObtainDescription(Enum.Parse<CategoriaEnum>(category)):"Todas las demás";
-        ViewBag.CategoriaDescription = categorydescription;
+        string categoryDescription = !string.IsNullOrEmpty(category)
+            ? CategoriaEnumHelper.ObtainDescription(Enum.Parse<CategoriaEnum>(category))
+            : "Todas las demás";
 
-        return View(post.ToPagedList(pageNumber, pageSize));
+        ViewBag.CategoriaDescription = categoryDescription;
+
+        return View(posts.ToPagedList(pageNumber, pageSize));
     }
 
     public async Task<IActionResult> logout()

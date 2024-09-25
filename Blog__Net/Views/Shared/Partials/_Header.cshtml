@@ -21,10 +21,15 @@
                 </li>
             </ul>
 
-            <form class="d-flex" method="get" asp-controller="Home" asp-action="Index">
-                    <imput class="form-control me-2" type="search" placeholder="Buscar..." name="search"></imput>
-                <button class="btn btn-outline-secondary" type="submit">Buscar</button>
-            </form>
+                <form method="get" asp-controller="Home" asp-action="Index">
+                    <!-- Campo único para buscar por título o autor -->
+                    <input type="text" name="search" placeholder="Buscar por título o autor" />
+
+                    <!-- Campo de fecha -->
+                    <input type="date" name="publicationDate" placeholder="Buscar por fecha" />
+
+                    <button type="submit">Buscar</button>
+                </form>
 
             <ul class="navbar-nav m5-auto">
                 <li class="nav-item dropdown">

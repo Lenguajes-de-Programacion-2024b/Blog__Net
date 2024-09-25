@@ -3,6 +3,8 @@
 @if(Model.Post!=null && User.Identity != null)
 {
     ViewData["Title"] = Model.Post.Title;
+    
+           <h4>Autor: @Model.Post.UserName</h4> 
 
     <h1>@Model.Post.Title</h1>
     <p class="text-muted">@Model.Post.Category.ToString()</p>
@@ -120,7 +122,7 @@
                                                <!-- COMENTARIOS HIJOS -->
                                                 @if (comment.SonComments != null && comment.SonComments.Count > 0)
                                                 {
-                                                    <ul class="list-unstyled">
+                                                    <ul class="list-unstyled mt-4 mb-0">
                                                         @foreach (var soncomment in comment.SonComments)
                                                         {
                                                             <li class="mb-4">

@@ -34,6 +34,14 @@ namespace Blog_.Net.Controllers
         [Authorize(Roles = "Autor")]
         public IActionResult Create(Posts post)
         {
+            var idUserClaim = User.FindFirst("IdUser");
+            if (idUserClaim == null)
+            {
+                // Manejo de error si no se encuentra el IdUser en las claims
+                return Unauthorized();
+            }
+            int idUser = int.Parse(idUserClaim.Value);
+
             using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
@@ -45,6 +53,7 @@ namespace Blog_.Net.Controllers
                     command.Parameters.AddWithValue("@Category", post.Category.ToString());
                     DateTime fc = DateTime.UtcNow;
                     command.Parameters.AddWithValue("@Publicationdate", fc);
+                    command.Parameters.AddWithValue("@IdUser", idUser);
                     command.ExecuteNonQuery();
                 }
             }
