@@ -11,7 +11,7 @@
     <p class="text-muted">@Model.Post.Publicationdate.ToShortDateString()</p>
 
 
-    @if(User.IsInRole("Autor"))
+    @if (User.FindFirst("IdUser")?.Value == @Model.Post.IdUser.ToString())
     {
         <form asp-action="Delete" asp-route-id="@Model.Post.PostId" method="post">
         <a asp-action="Update" asp-route-id="@Model.Post.PostId" class="btn btn-warning">
@@ -21,7 +21,7 @@
             <i class="far fa-trash-alt"></i>
         </button>
         <div class="modal fade" id="confirm-delete-modal" tabindex="-1" aria-labelledby="confirm-delete-modal-label" aria-hidden="true">
-            <div class="modal modal-dialog-centered">
+                <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                          <h5 class="modal-title" id="confirm-delete-modal-label">Confirmar eliminacion</h5>
@@ -32,7 +32,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar modal</button>
-                        <button type="button" class="btn btn-danger">Eliminar publicacion</button>
+                        <button type="submit" class="btn btn-danger">Eliminar publicacion</button>
                     </div>
                 </div>
             </div>

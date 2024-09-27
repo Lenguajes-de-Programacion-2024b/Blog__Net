@@ -38,7 +38,8 @@ namespace Blog__Net.Data.ServicePost
                                 Content = (string)reader["Content"],
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
                                 Publicationdate = (DateTime)reader["Publicationdate"],
-                                UserName = (string)reader["UserName"]
+                                UserName = (string)reader["UserName"],
+                                IdUser = (int)reader["IdUser"]
                             };
                         }
                         reader.Close();

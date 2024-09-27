@@ -13,6 +13,7 @@ public partial class Posts
 
     public string? Content { get; set; }
     public int IdUser { get; set; }
+    public int LikesCount { get; set; }
 
     public CategoriaEnum Category { get; set; }
 
