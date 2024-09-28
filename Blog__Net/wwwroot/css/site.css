@@ -1,3 +1,4 @@
+/* Estilos globales */
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -7,6 +8,7 @@ body {
     color: #333;
 }
 
+/* Estilos para el header */
 header {
     background: #004080;
     color: #fff;
@@ -18,88 +20,87 @@ header {
         margin: 0;
     }
 
-nav ul {
+/* Alineación del nombre del blog a la izquierda */
+.navbar-brand {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 1.5rem;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Menú de navegación */
+.navbar-nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
     list-style: none;
     padding: 0;
 }
 
-    nav ul li {
-        display: inline;
+    .navbar-nav li {
         margin: 0 10px;
     }
 
-        nav ul li a {
+        .navbar-nav li a {
             color: #fff;
             text-decoration: none;
             font-weight: bold;
         }
 
-.login-link {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #fff;
-    color: #004080;
-    padding: 5px 10px;
-    text-decoration: none;
-    border-radius: 5px;
-    border: 1px solid #004080;
-    font-weight: bold;
+/* Estilo del formulario de búsqueda */
+form.d-flex {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* Alinea el form hacia la derecha */
 }
 
-    .login-link:hover {
-        background-color: #004080;
-        color: #fff;
+    form.d-flex input {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-right: 10px;
+        width: 200px; /* Establecer un ancho fijo */
     }
 
-section {
-    margin: 20px;
-}
-
-#about {
-    background: #e2e2e2;
-    padding: 15px;
-    border-radius: 5px;
-}
-
-    #about h2 {
-        margin-top: 0;
-    }
-
-#login {
-    background: #e2e2e2;
-    padding: 15px;
-    margin-top: 20px;
-    border-radius: 5px;
-}
-
-    #login h2 {
-        margin-top: 0;
-    }
-
-    #login form {
-        display: flex;
-        flex-direction: column;
-    }
-
-    #login label {
-        margin-bottom: 5px;
-    }
-
-
-    #login button {
-        padding: 10px;
-        background-color: #004080;
-        color: #fff;
-        border: none;
+    form.d-flex button {
+        padding: 8px 15px; /* Ajusta el padding */
+        background-color: #fff;
+        color: #004080;
+        border: 1px solid #004080;
         border-radius: 5px;
         cursor: pointer;
+        font-weight: bold;
     }
 
-        #login button:hover {
-            background-color: #003366;
+        form.d-flex button:hover {
+            background-color: #004080;
+            color: #fff;
         }
 
+
+/* Estilo del dropdown de usuario */
+.nav-item.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    background-color: #004080;
+    padding: 10px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    position: absolute;
+    top: 100%;
+    right: 0;
+}
+
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+
+/* Estilos para la sección de publicaciones */
 #posts {
     margin-top: 20px;
 }
@@ -116,6 +117,7 @@ section {
         box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
 
+/* Estilos para el footer */
 footer {
     background: #004080;
     color: #fff;

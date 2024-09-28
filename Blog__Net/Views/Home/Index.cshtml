@@ -1,21 +1,54 @@
-﻿@{
+﻿@model IPagedList<Posts>
+    @using X.PagedList;
+    @using X.PagedList.Mvc.Core;
+
+@{
     ViewBag.Title = "Inicio";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Ruta al layout que deseas utilizar
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<main>
-    <div class="text-center">
-        <h1 class="display-4"> Bienvenido @ViewData["nameUser"]</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="display-4 mb-4">Bienvenido/a a mi Blog</h1>
+            <p>Aqui puedes encontrar las últimas publicaciones sobre @ViewBag.CategoriaDescription.</p>
+        </div>
     </div>
+    <div class="row">
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-info" role="alert">
+                @ViewBag.Error
+            </div> 
+        }
+        @foreach (var post in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow">
+                    <div class="card-body">
+                        <h2 class="card-title">@post.Title</h2>
+                    </div>
+                    <div class="card footer">
+                        <small>@post.Publicationdate.ToShortDateString()</small>
+                        <div class="float-right">
+                            <a asp-route-id="@post.PostId" asp-action="Details" asp-controller="Post" 
+                            class="btn btn-sm btn-primary">Ver publicación</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.PagedListPager(Model, page=> Url.Action("Index",new{page}),new PagedListRenderOptions()
+            {
+                LiElementClasses=new string[] {"page-item"},
+                PageClasses=new string[] {"page-link"},
+                ContainerDivClasses=new string[] {"pagination justify-content-center"},
+                UlElementClasses=new string[] {"pagination"}
+            })
+        </div>
+    </div>
+</div>
 
-    <section id="about">
-
-        <h2>Sobre Nosotros</h2>
-        <p>Blog USC es un espacio digital creado para la comunidad de la Universidad Santiago de Cali, donde estudiantes, profesores y colaboradores pueden compartir sus conocimientos, experiencias y opiniones.</p>
-    </section>
-
-    <section id="posts">
-        <h2>Últimas Publicaciones</h2>
-        <!-- Aquí puedes agregar código para mostrar las publicaciones -->
-    </section>
-</main>

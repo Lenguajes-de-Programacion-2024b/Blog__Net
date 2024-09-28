@@ -27,13 +27,21 @@ namespace Blog_.Net.Controllers
         public IActionResult Create()
         {
 
-            return View();
+            return View(new Posts());
         }
 
         [HttpPost]
         [Authorize(Roles = "Autor")]
         public IActionResult Create(Posts post)
         {
+            var idUserClaim = User.FindFirst("IdUser");
+            if (idUserClaim == null)
+            {
+                // Manejo de error si no se encuentra el IdUser en las claims
+                return Unauthorized();
+            }
+            int idUser = int.Parse(idUserClaim.Value);
+
             using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
@@ -45,6 +53,7 @@ namespace Blog_.Net.Controllers
                     command.Parameters.AddWithValue("@Category", post.Category.ToString());
                     DateTime fc = DateTime.UtcNow;
                     command.Parameters.AddWithValue("@Publicationdate", fc);
+                    command.Parameters.AddWithValue("@IdUser", idUser);
                     command.ExecuteNonQuery();
                 }
             }
@@ -80,18 +89,39 @@ namespace Blog_.Net.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Autor")]
-        public ActionResult Delete(Posts post)
+        public ActionResult Delete(int Id)
         {
             using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
-                using (var command = new SqlCommand("DeletePost", connection))
+
+                // Verificamos si el post tiene comentarios
+                using (var command = new SqlCommand("CheckPostComments", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@PostId", post.PostId);
-                    command.ExecuteNonQuery();
+                    command.Parameters.AddWithValue("@PostId", Id);
+
+                    var hasComments = (int)command.ExecuteScalar();
+                    TempData["DebugHasComments"] = hasComments;
+
+                    // Si tiene comentarios, no permitimos eliminar
+                    if (hasComments > 0)
+                    {
+                        // Podrías mostrar un mensaje de error o redirigir a una página específica
+                        TempData["ErrorMessage"] = "No se puede eliminar un post que tiene comentarios.";
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+
+                // Si no tiene comentarios, procedemos a eliminarlo
+                using (var deleteCommand = new SqlCommand("DeletePost", connection))
+                {
+                    deleteCommand.CommandType = CommandType.StoredProcedure;
+                    deleteCommand.Parameters.AddWithValue("@PostId", Id);
+                    deleteCommand.ExecuteNonQuery();
                 }
             }
+
             return RedirectToAction("Index", "Home");
         }
 

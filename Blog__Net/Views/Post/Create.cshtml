@@ -6,9 +6,10 @@
 }
 
 <h2 class="mb-4">Nueva Publicación</h2>
-
-<!-- Formulario para crear un nuevo post -->
+<link rel="stylesheet" href="~/css/Create.css" />
+ 
 <form asp-action="Create" method="post">
+  
     <div class="form-group mb-4">
         <label for="title-input">Título</label>
         <input id="title-input" asp-for="Title" class="form-control" />
@@ -18,39 +19,50 @@
     <div class="form-group mb-4">
         <label for="category-input">Categoría</label>
         <select id="category-input" asp-for="Category" class="form-control">
-            @foreach (var categoria in Enum.GetValues(typeof(CategoriaEnum)))
+            @foreach (var categoria in CategoriaEnum.GetValues(typeof(CategoriaEnum)))
             {
-                <option value="@categoria">@categoria.ToString()</option>
+            <option value="@categoria">@categoria.ToString()</option>
             }
         </select>
         <span asp-validation-for="Category" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-4">
+    <div class="form-group mb-5">
         <label for="content-input">Contenido</label>
-        <textarea id="content-editor" asp-for="Content" class="form-control"></textarea>
-        <span asp-validation-for="Content" class="text-danger"></span>
+        @if (Model != null)
+        {
+            <textarea id="content-editor" name="Content" class=" form-control">@Html.Raw(Model.Content)</textarea>
+         
+        }
+        else
+        {
+            <textarea id="content-editor" name="Content" class=" form-control"></textarea>
+        }
+        <span asp-validation-for="Content" class="text-danger"></span>    
     </div>
 
-    <button type="submit" class="btn btn-primary">Crear Publicación</button>
+    <div class="d-grid gap-2 col-md2 mx-auto">
+        <button type="submit" class="btn btn-success btn-lg">Crear</button>
+    </div>
+
 </form>
 
 @section Scripts {
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+        <script src="https://cdn.tiny.cloud/1/j9c4v1uaeil73i11s4eed8wdtttsfpvn55gxm3vdlp1218ns/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
-        tinymce.init({
-            selector: '#content-editor',
-            height: 500,
-            plugins: [
-                'advlist autolink lists link image charmap preview anchor',
-                'searchreplace visualblocks code fullscreen',
-                'insertdatetime media table help wordcount'
-            ],
-            toolbar: 'undo redo | formatselect | ' +
-                'bold italic backcolor | alignleft aligncenter ' +
-                'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | help',
-            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
-        });
+      tinymce.init({
+      selector: 'textarea#content-editor',
+      height: 500,
+      plugins: [
+        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+      ],
+      toolbar: 'undo redo | blocks | ' +
+      'bold italic backcolor | alignleft aligncenter ' +
+      'alignright alignjustify | bullist numlist outdent indent | ' +
+      'removeformat | help',
+      content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+    });
     </script>
 }

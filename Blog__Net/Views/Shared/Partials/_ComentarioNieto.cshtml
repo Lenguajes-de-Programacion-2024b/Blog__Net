@@ -1,0 +1,23 @@
+﻿@model IEnumerable<Comments>
+
+    @if (Model!=null && Model.Count()>0)
+    {
+    <ul class="list-unstyledm mt-4 mb-0">
+        @foreach (var grandsoncomment in Model)
+        {
+            <li class="mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            @grandsoncomment.UserName
+                            <small class="text-muted text-sm-end small">@grandsoncomment.Creationdate</small>
+                        </h5>
+                        <p class="card-text">@grandsoncomment.Content</p>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+    }
+
+

@@ -7,6 +7,8 @@ namespace Blog__Net.Data.Enums
         [Description("Noticias recientes")]
         Noticias,
         [Description("Novedades en tecnologia")]
-        Tecnologia
+        Tecnologia,
+        [Description("Novedades de los videojuegos")]
+        Videojuegos
     }
 }
