@@ -60,7 +60,7 @@ namespace Blog_.Net.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        [Authorize(Roles = "Autor")]
+        [Authorize(Roles = "Autor, Moderador")]
         public ActionResult Update(int id)
         {
             var post = _postservice.GetpostbyId(id);
@@ -68,7 +68,7 @@ namespace Blog_.Net.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Autor")]
+        [Authorize(Roles = "Autor, Moderador")]
         public ActionResult Update(Posts post)
         {
             using (var connection = new SqlConnection(_contexto.CadenaSQl))
@@ -77,13 +77,31 @@ namespace Blog_.Net.Controllers
                 using (var command = new SqlCommand("UpdatePost", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@PostId", post.PostId);
-                    command.Parameters.AddWithValue("@Title", post.Title);
-                    command.Parameters.AddWithValue("@Content", post.Content);
-                    command.Parameters.AddWithValue("@Category", post.Category.ToString());
+
+                    // Verificar si el usuario es un moderador
+                    if (User.IsInRole("Moderador"))
+                    {
+                        // Los moderadores solo pueden actualizar el estado de la publicación
+                        command.Parameters.AddWithValue("@PostId", post.PostId);
+                        command.Parameters.AddWithValue("@Title", DBNull.Value); // Pasar NULL si no se proporciona
+                        command.Parameters.AddWithValue("@Content", DBNull.Value); // Pasar NULL si no se proporciona
+                        command.Parameters.AddWithValue("@Category", DBNull.Value); // Pasar NULL si no se proporciona
+                        command.Parameters.AddWithValue("@Estado", post.Estado.ToString());
+                    }
+                    else if (User.IsInRole("Autor"))
+                    {
+                        // Los autores pueden actualizar todos los campos
+                        command.Parameters.AddWithValue("@PostId", post.PostId);
+                        command.Parameters.AddWithValue("@Title", post.Title);
+                        command.Parameters.AddWithValue("@Content", post.Content);
+                        command.Parameters.AddWithValue("@Category", post.Category.ToString());
+                        command.Parameters.AddWithValue("@Estado", post.Estado.ToString()); // Si es necesario para autores
+                    }
+
                     command.ExecuteNonQuery();
                 }
             }
+
             return RedirectToAction("Index", "Home");
         }
 

@@ -1,42 +1,52 @@
 ﻿@model Blog__Net.Models.ViewModels.PostDetailsViewModels
 
-@if(Model.Post!=null && User.Identity != null)
+@if (Model.Post != null && User.Identity != null)
 {
     ViewData["Title"] = Model.Post.Title;
-    
-           <h4>Autor: @Model.Post.UserName</h4> 
+
+    <h4>Autor: @Model.Post.UserName</h4>
 
     <h1>@Model.Post.Title</h1>
     <p class="text-muted">@Model.Post.Category.ToString()</p>
     <p class="text-muted">@Model.Post.Publicationdate.ToShortDateString()</p>
 
 
-    @if (User.FindFirst("IdUser")?.Value == @Model.Post.IdUser.ToString())
+    @if (User.FindFirst("IdUser")?.Value == @Model.Post.IdUser.ToString() || User.IsInRole("Moderador"))
+
     {
         <form asp-action="Delete" asp-route-id="@Model.Post.PostId" method="post">
-        <a asp-action="Update" asp-route-id="@Model.Post.PostId" class="btn btn-warning">
-            <i class="fa-regular fa-edit"></i>
-        </a>
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirm-delete-modal">
-            <i class="far fa-trash-alt"></i>
-        </button>
-        <div class="modal fade" id="confirm-delete-modal" tabindex="-1" aria-labelledby="confirm-delete-modal-label" aria-hidden="true">
+            @if (User.FindFirst("IdUser")?.Value == @Model.Post.IdUser.ToString())
+
+            {
+                <!-- Solo mostrar el botón de eliminar si el usuario es el autor -->
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirm-delete-modal">
+                    <i class="far fa-trash-alt"></i>
+                </button>
+            }
+
+            <!-- Mostrar el botón de actualizar tanto para el autor como el moderador -->
+            <a asp-action="Update" asp-route-id="@Model.Post.PostId" class="btn btn-warning">
+                <i class="fa-regular fa-edit"></i>
+            </a>
+
+            <!-- Modal de confirmación para eliminar -->
+            <div class="modal fade" id="confirm-delete-modal" tabindex="-1" aria-labelledby="confirm-delete-modal-label" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                         <h5 class="modal-title" id="confirm-delete-modal-label">Confirmar eliminacion</h5>
-                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        ¿Esta seguro que desea eliminar esta publicacion?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar modal</button>
-                        <button type="submit" class="btn btn-danger">Eliminar publicacion</button>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirm-delete-modal-label">Confirmar eliminación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Está seguro que desea eliminar esta publicación?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-danger">Eliminar publicación</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         </form>
     }
 

@@ -13,7 +13,7 @@ public partial class Posts
 
     public string? Content { get; set; }
     public int IdUser { get; set; }
-
+    public EstadoPostEnum Estado { get; set; }
     public CategoriaEnum Category { get; set; }
 
     public DateTime Publicationdate { get; set; }
