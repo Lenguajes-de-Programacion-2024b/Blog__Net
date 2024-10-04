@@ -1,43 +1,33 @@
 using Microsoft.EntityFrameworkCore;
-<<<<<<< Updated upstream
 using Blog__Net.Models;
-
-=======
 using Blog__Net.Servicios.Contrato;
 using Blog__Net.Servicios.Implementacion;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Blog__Net.Data;
 using Blog__Net.Data.ServicePost;
->>>>>>> Stashed changes
+using Blog__Net.Servicios.Contrato;
+using Blog__Net.Servicios.Implementacion;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Blog__Net.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-<<<<<<< Updated upstream
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 app.UseRouting();
 
-=======
-// Configuración del contexto de la base de datos
+
 builder.Services.AddDbContext<DbBlogContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("cadenaSQL"),
                      new MySqlServerVersion(new Version(8, 0, 23))));
 
-// Inicializa el contexto y el servicio PostService
+
 builder.Services.AddScoped<Contexto>(provider =>
 {
     var connectionString = builder.Configuration.GetConnectionString("cadenaSQL");
@@ -69,15 +59,13 @@ var app = builder.Build();
 app.UseRouting();
 app.UseStaticFiles();
 app.UseAuthentication();
->>>>>>> Stashed changes
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Inicio}/{action=Login}/{id?}");
+
 
 app.Run();
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes

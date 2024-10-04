@@ -1,4 +1,4 @@
-﻿using Blog__Net.Data.Enums;
+using Blog__Net.Data.Enums;
 using Blog__Net.Models;
 using MySqlConnector;
 using System.Data;
@@ -258,4 +258,3 @@ namespace Blog__Net.Data.ServicePost
             return comments;
         }
     }
-}

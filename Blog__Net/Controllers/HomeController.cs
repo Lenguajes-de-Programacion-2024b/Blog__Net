@@ -1,32 +1,67 @@
+using Blog__Net.Data.ServicePost;
+using Blog__Net.Data;
 using Blog__Net.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
-namespace Blog__Net.Controllers
+using Blog__Net.Data.Enums;
+using X.PagedList;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+
+namespace Blog__Net.Controllers;
+
+
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly Contexto _contexto;
+    private readonly PostService _postservice;
+
+    public HomeController(Contexto contexto)
     {
-        private readonly ILogger<HomeController> _logger;
+        _contexto = contexto;
+        _postservice = new PostService(contexto);
+    }
 
-        public HomeController(ILogger<HomeController> logger)
+    public IActionResult Index(string category, string search, DateTime? publicationDate, int? page)
+    {
+        var posts = new List<Posts>();
+
+        if (string.IsNullOrEmpty(category) && string.IsNullOrEmpty(search) && publicationDate == null)
         {
-            _logger = logger;
+            posts = _postservice.ObtainPosts();
+        }
+        else if (!string.IsNullOrEmpty(category))
+        {
+            var categoriaEnum = Enum.Parse<CategoriaEnum>(category);
+            posts = _postservice.ObtainPostsByCategory(categoriaEnum);
+
+            if (posts.Count == 0)
+                ViewBag.Error = $"No se encontraron publicaciones en la categoría {categoriaEnum}.";
+        }
+        else
+        {
+            // Búsqueda por palabras clave en título, nombre de usuario, y/o fecha
+            posts = _postservice.ObtainPostsByFilter(search, publicationDate);
+
+            if (posts.Count == 0)
+                ViewBag.Error = $"No se encontraron publicaciones con los criterios proporcionados.";
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        int pageSize = 6;
+        int pageNumber = (page ?? 1);
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        string categoryDescription = !string.IsNullOrEmpty(category)
+            ? CategoriaEnumHelper.ObtainDescription(Enum.Parse<CategoriaEnum>(category))
+            : "Todas las demás";
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        ViewBag.CategoriaDescription = categoryDescription;
+
+        return View(posts.ToPagedList(pageNumber, pageSize));
+    }
+
+    public async Task<IActionResult> logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction("Login", "Inicio");
     }
 }

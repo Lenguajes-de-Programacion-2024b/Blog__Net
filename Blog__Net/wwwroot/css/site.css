@@ -1,22 +1,129 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* Estilos globales */
 body {
-  margin-bottom: 60px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Estilos para el header */
+header {
+    background: #004080;
+    color: #fff;
+    padding: 10px 0;
+    position: relative;
+}
+
+    header h1 {
+        margin: 0;
+    }
+
+/* Alineación del nombre del blog a la izquierda */
+.navbar-brand {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 1.5rem;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Menú de navegación */
+.navbar-nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+}
+
+    .navbar-nav li {
+        margin: 0 10px;
+    }
+
+        .navbar-nav li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+/* Estilo del formulario de búsqueda */
+form.d-flex {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* Alinea el form hacia la derecha */
+}
+
+    form.d-flex input {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-right: 10px;
+        width: 200px; /* Establecer un ancho fijo */
+    }
+
+    form.d-flex button {
+        padding: 8px 15px; /* Ajusta el padding */
+        background-color: #fff;
+        color: #004080;
+        border: 1px solid #004080;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+        form.d-flex button:hover {
+            background-color: #004080;
+            color: #fff;
+        }
+
+
+/* Estilo del dropdown de usuario */
+.nav-item.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none;
+    background-color: #004080;
+    padding: 10px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    position: absolute;
+    top: 100%;
+    right: 0;
+}
+
+.nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+
+/* Estilos para la sección de publicaciones */
+#posts {
+    margin-top: 20px;
+}
+
+    #posts h2 {
+        margin-bottom: 15px;
+    }
+
+    #posts article {
+        background: #fff;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+/* Estilos para el footer */
+footer {
+    background: #004080;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
 }

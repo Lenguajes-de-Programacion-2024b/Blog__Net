@@ -13,6 +13,8 @@ using MySql.Data.MySqlClient;
 using Humanizer;
 
 
+
+
 namespace Blog_.Net.Controllers
 {
     public class PostController : Controller
@@ -37,13 +39,21 @@ namespace Blog_.Net.Controllers
         [Authorize(Roles = "Autor")]
         public IActionResult Create(Posts post)
         {
-            // Obtener el IdUser desde los claims del usuario autenticado
+
+           
             var idUserClaim = User.FindFirst("IdUser");
             if (idUserClaim == null)
             {
+
+            var idUserClaim = User.FindFirst("IdUser");
+            if (idUserClaim == null)
+            {
+                
+
                 return Unauthorized();
             }
             int idUser = int.Parse(idUserClaim.Value);
+
 
             using (var connection = new MySqlConnection(_contexto.CadenaSQl))
             {
@@ -51,22 +61,18 @@ namespace Blog_.Net.Controllers
                 using (var command = new MySqlCommand("InsertPost", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    // Usar las propiedades del objeto post
+                    
                     command.Parameters.AddWithValue("@Title", post.Title);
                     command.Parameters.AddWithValue("@Content", post.Content);
                     command.Parameters.AddWithValue("@Category", post.Category);
-                    command.Parameters.AddWithValue("@PublicationDate", DateTime.Now); // Asumir la fecha actual o usar una propiedad si existe
+                    command.Parameters.AddWithValue("@PublicationDate", DateTime.Now); 
                     command.Parameters.AddWithValue("@IdUser", idUser);
-                    command.Parameters.AddWithValue("@Estado", post.Estado); // Asegúrate de que 'Estado' sea parte del modelo
-
+                    command.Parameters.AddWithValue("@Estado", post.Estado); 
                     command.ExecuteNonQuery();
                 }
             }
             return RedirectToAction("Index", "Home");
         }
-
-
-
 
 
         [Authorize(Roles = "Autor, Moderador")]
@@ -80,31 +86,34 @@ namespace Blog_.Net.Controllers
         [Authorize(Roles = "Autor, Moderador")]
         public ActionResult Update(Posts post)
         {
-            using (var connection = new MySqlConnection(_contexto.CadenaSQl)) // Cambiado a MySqlConnection
+
+            using (var connection = new MySqlConnection(_contexto.CadenaSQl)) 
             {
                 connection.Open();
-                using (var command = new MySqlCommand("UpdatePost", connection)) // Cambiado a MySqlCommand
+                using (var command = new MySqlCommand("UpdatePost", connection)) 
+
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    // Verificar si el usuario es un moderador
+                
                     if (User.IsInRole("Moderador"))
                     {
-                        // Los moderadores solo pueden actualizar el estado de la publicación
-                        command.Parameters.AddWithValue("p_PostId", post.PostId); // Cambiado a p_PostId para MySQL
-                        command.Parameters.AddWithValue("p_Title", DBNull.Value); // Pasar NULL si no se proporciona
-                        command.Parameters.AddWithValue("p_Content", DBNull.Value); // Pasar NULL si no se proporciona
-                        command.Parameters.AddWithValue("p_Category", DBNull.Value); // Pasar NULL si no se proporciona
+                        
+
+                        command.Parameters.AddWithValue("p_PostId", post.PostId); 
+                        command.Parameters.AddWithValue("p_Title", DBNull.Value); 
+                        command.Parameters.AddWithValue("p_Content", DBNull.Value); 
+                        command.Parameters.AddWithValue("p_Category", DBNull.Value); /
                         command.Parameters.AddWithValue("p_Estado", post.Estado.ToString());
                     }
                     else if (User.IsInRole("Autor"))
                     {
-                        // Los autores pueden actualizar todos los campos
-                        command.Parameters.AddWithValue("p_PostId", post.PostId); // Cambiado a p_PostId para MySQL
+                      
+                        command.Parameters.AddWithValue("p_PostId", post.PostId); 
                         command.Parameters.AddWithValue("p_Title", post.Title);
                         command.Parameters.AddWithValue("p_Content", post.Content);
                         command.Parameters.AddWithValue("p_Category", post.Category.ToString());
-                        command.Parameters.AddWithValue("p_Estado", post.Estado.ToString()); // Si es necesario para autores
+                        command.Parameters.AddWithValue("p_Estado", post.Estado.ToString());
                     }
 
                     command.ExecuteNonQuery();
@@ -118,39 +127,44 @@ namespace Blog_.Net.Controllers
         [Authorize(Roles = "Autor")]
         public ActionResult Delete(int Id)
         {
-            using (var connection = new MySqlConnection(_contexto.CadenaSQl)) // Cambia a MySqlConnection
+
+            using (var connection = new MySqlConnection(_contexto.CadenaSQl)) 
+
+            
             {
                 connection.Open();
 
-                // Verificamos si el post tiene comentarios
-                using (var command = new MySqlCommand("CheckPostComments", connection)) // Cambia a MySqlCommand
+                
+
+                using (var command = new MySqlCommand("CheckPostComments", connection)) 
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("p_PostId", Id); // Asegúrate de que el nombre del parámetro coincida con el del procedimiento en MySQL
+                    command.Parameters.AddWithValue("p_PostId", Id); 
 
-                    var hasComments = Convert.ToInt32(command.ExecuteScalar()); // Ejecutar y convertir el resultado a int
+                    var hasComments = Convert.ToInt32(command.ExecuteScalar()); /
                     TempData["DebugHasComments"] = hasComments;
 
-                    // Si tiene comentarios, no permitimos eliminar
+                    
                     if (hasComments > 0)
                     {
+
                         TempData["ErrorMessage"] = "No se puede eliminar un post que tiene comentarios.";
                         return RedirectToAction("Index", "Home");
                     }
                 }
 
-                // Si no tiene comentarios, procedemos a eliminarlo
-                using (var deleteCommand = new MySqlCommand("DeletePost", connection)) // Cambia a MySqlCommand
+              
+
+                using (var deleteCommand = new MySqlCommand("DeletePost", connection)) 
                 {
                     deleteCommand.CommandType = CommandType.StoredProcedure;
-                    deleteCommand.Parameters.AddWithValue("p_PostId", Id); // Asegúrate de que el nombre del parámetro coincida
+                    deleteCommand.Parameters.AddWithValue("p_PostId", Id); 
                     deleteCommand.ExecuteNonQuery();
                 }
             }
 
             return RedirectToAction("Index", "Home");
         }
-
 
         public ActionResult Details(int id)
         {
@@ -173,7 +187,8 @@ namespace Blog_.Net.Controllers
         [HttpPost]
         public ActionResult AddComment(int postId, string comment, int? commentparentId)
         {
-            // Verificar que el comentario no esté vacío
+
+            
             if (string.IsNullOrWhiteSpace(comment))
             {
                 ViewBag.Error = "El comentario no puede estar vacío.";
@@ -195,20 +210,20 @@ namespace Blog_.Net.Controllers
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    // Asegúrate de que los nombres de los parámetros coincidan
+                    
                     cmd.Parameters.AddWithValue("p_Content", comment);
                     cmd.Parameters.AddWithValue("p_CreationDate", publicationDate);
                     cmd.Parameters.AddWithValue("p_IdUser", userId ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("p_PostId", postId);
                     cmd.Parameters.AddWithValue("p_CommentParentId", commentparentId ?? (object)DBNull.Value);
 
-                    // Abrir conexión y ejecutar el comando
+                    
                     con.Open();
                     cmd.ExecuteNonQuery();
                 }
             }
 
-            // Redirigir de vuelta a la página de detalles del post
+          
             return RedirectToAction("Details", "Post", new { id = postId });
         }
 
@@ -218,3 +233,5 @@ namespace Blog_.Net.Controllers
     }
 }
 
+
+           

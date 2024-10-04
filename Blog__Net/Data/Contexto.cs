@@ -1,3 +1,4 @@
+
 ﻿using Microsoft.EntityFrameworkCore;
 using Blog__Net.Models;
 namespace Blog__Net.Data
@@ -12,5 +13,7 @@ namespace Blog__Net.Data
         }
     }
 }
+
+
 
 
