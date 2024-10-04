@@ -1,6 +1,6 @@
 ﻿using Blog__Net.Controllers;
 using Blog__Net.Models;
-using Microsoft.Data.SqlClient;
+using MySql.Data.MySqlClient;  // Cambiado a MySQL
 using System.Data;
 
 namespace Blog__Net.Data.ServicePost
@@ -18,14 +18,18 @@ namespace Blog__Net.Data.ServicePost
         {
             InfoUser user = new();
 
-            using (SqlConnection con = new(_contexto.CadenaSQl))
+            // Cambiado SqlConnection a MySqlConnection
+            using (MySqlConnection con = new(_contexto.CadenaSQl))
             {
-                using(SqlCommand cmd= new("GetUserById", con))
+                // Cambiado SqlCommand a MySqlCommand
+                using (MySqlCommand cmd = new("GetUserById", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@IdUser",id);
+                    cmd.Parameters.AddWithValue("@IdUser", id);
                     con.Open();
-                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    // Cambiado SqlDataReader a MySqlDataReader
+                    MySqlDataReader rdr = cmd.ExecuteReader();
 
                     if (rdr.Read())
                     {
@@ -33,8 +37,8 @@ namespace Blog__Net.Data.ServicePost
                         {
                             IdUser = id,
                             UserName = rdr["UserName"].ToString(),
-                            Email= rdr["Email"].ToString(),
-                            Passcode= rdr["Passcode"].ToString(),
+                            Email = rdr["Email"].ToString(),
+                            Passcode = rdr["Passcode"].ToString(),
                             RolId = (int)rdr["RolId"]
                         };
                     }
@@ -45,3 +49,4 @@ namespace Blog__Net.Data.ServicePost
         }
     }
 }
+

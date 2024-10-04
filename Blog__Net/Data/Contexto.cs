@@ -11,6 +11,8 @@ namespace Blog__Net.Data
         {
             CadenaSQl = Valor;
         }
+
+        public DbSet<PostLike> PostLike { get; set; }
     }
 }
 
