@@ -1,6 +1,8 @@
-using Blog__Net.Data.Enums;
+﻿using Blog__Net.Data.Enums;
 using Blog__Net.Models;
-using MySqlConnector;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Data.SqlClient;
+using NuGet.Protocol.Plugins;
 using System.Data;
 
 namespace Blog__Net.Data.ServicePost
@@ -17,10 +19,10 @@ namespace Blog__Net.Data.ServicePost
         public Posts GetpostbyId(int id)
         {
             var post = new Posts();
-            using (var connection = new MySqlConnection(_contexto.CadenaSQl))
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
-                using (var command = new MySqlCommand("getpostbyId", connection))
+                using (var command = new SqlCommand("getpostbyId", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@PostId", id);
@@ -31,15 +33,16 @@ namespace Blog__Net.Data.ServicePost
                         {
                             post = new Posts
                             {
-                                PostId = reader.GetInt32("PostId"),
-                                Title = reader.GetString("Title"),
-                                Content = reader.GetString("Content"),
-                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), reader.GetString("Category")),
-                                Publicationdate = reader.GetDateTime("Publicationdate"),
-                                UserName = reader.GetString("UserName"),
-                                IdUser = reader.GetInt32("IdUser")
+                                PostId = (int)reader["PostId"],
+                                Title = (string)reader["Title"],
+                                Content = (string)reader["Content"],
+                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                Publicationdate = (DateTime)reader["Publicationdate"],
+                                UserName = (string)reader["UserName"],
+                                IdUser = (int)reader["IdUser"]
                             };
                         }
+                        reader.Close();
                     }
                 }
             }
@@ -50,25 +53,23 @@ namespace Blog__Net.Data.ServicePost
         {
             var posts = new List<Posts>();
 
-            using (var connection = new MySqlConnection(_contexto.CadenaSQl))
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
-                using (var command = new MySqlCommand("GetAllPost", connection)) // Asegúrate de que el nombre del procedimiento almacenado sea correcto
+                using (SqlCommand cmd = new("GetallPost", connection))
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-
-                    using (var reader = command.ExecuteReader())
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             var post = new Posts
                             {
-                                PostId = reader.GetInt32("PostId"),
-                                Title = reader.GetString("Title"),
-                                Content = reader.GetString("Content"),
-                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), reader.GetString("Category")),
-                                Publicationdate = reader.GetDateTime("Publicationdate"),
-                                UserName = reader.GetString("UserName")
+                                PostId = (int)reader["PostId"],
+                                Title = (string)reader["Title"],
+                                Content = (string)reader["Content"],
+                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                Publicationdate = (DateTime)reader["Publicationdate"]
                             };
                             posts.Add(post);
                         }
@@ -83,24 +84,24 @@ namespace Blog__Net.Data.ServicePost
         {
             var posts = new List<Posts>();
 
-            using (var connection = new MySqlConnection(_contexto.CadenaSQl))
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
-                using (var cmd = new MySqlCommand("getpostbycategory", connection))
+                using (SqlCommand cmd = new("getpostbycategory", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("p_Category", categoria.ToString());
+                    cmd.Parameters.AddWithValue("@Category", categoria.ToString());
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             var post = new Posts
                             {
-                                PostId = reader.GetInt32("PostId"),
-                                Title = reader.GetString("Title"),
-                                Content = reader.GetString("Content"),
-                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), reader.GetString("Category")),
-                                Publicationdate = reader.GetDateTime("Publicationdate")
+                                PostId = (int)reader["PostId"],
+                                Title = (string)reader["Title"],
+                                Content = (string)reader["Content"],
+                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                Publicationdate = (DateTime)reader["Publicationdate"]
                             };
                             posts.Add(post);
                         }
@@ -115,10 +116,10 @@ namespace Blog__Net.Data.ServicePost
         {
             var posts = new List<Posts>();
 
-            using (var connection = new MySqlConnection(_contexto.CadenaSQl))
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
-                using (var cmd = new MySqlCommand("getPostsByFilter", connection))
+                using (SqlCommand cmd = new SqlCommand("getPostsByFilter", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@Search", (object)search ?? DBNull.Value);
@@ -130,12 +131,12 @@ namespace Blog__Net.Data.ServicePost
                         {
                             var post = new Posts
                             {
-                                PostId = reader.GetInt32("PostId"),
-                                Title = reader.GetString("Title"),
-                                Content = reader.GetString("Content"),
-                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), reader.GetString("Category")),
-                                Publicationdate = reader.GetDateTime("Publicationdate"),
-                                UserName = reader.GetString("UserName")
+                                PostId = (int)reader["PostId"],
+                                Title = (string)reader["Title"],
+                                Content = (string)reader["Content"],
+                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                Publicationdate = (DateTime)reader["Publicationdate"],
+                                UserName = (string)reader["UserName"]
                             };
                             posts.Add(post);
                         }
@@ -149,28 +150,29 @@ namespace Blog__Net.Data.ServicePost
         public List<Comments> ObtainCommentsByPostId(int id)
         {
             var comments = new List<Comments>();
-            using (var connection = new MySqlConnection(_contexto.CadenaSQl))
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
-                using (var command = new MySqlCommand("ObtainCommentsByPostId", connection))
+                using (var command = new SqlCommand("ObtainCommentsByPostId", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("p_PostId", id); // Cambia "@PostId" por "p_PostId"
+                    command.Parameters.AddWithValue("@PostId", id);
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             var comment = new Comments
                             {
-                                CommentId = reader.GetInt32("CommentId"),
-                                Content = reader.GetString("Content"),
-                                Creationdate = reader.GetDateTime("Creationdate"),
-                                IdUser = reader.GetInt32("IdUser"),
-                                PostId = reader.GetInt32("PostId"),
-                                UserName = reader.GetString("UserName")
+                                CommentId = (int)reader["CommentId"],
+                                Content = (string)reader["Content"],
+                                Creationdate = (DateTime)reader["Creationdate"],
+                                IdUser = (int)reader["IdUser"],
+                                PostId = (int)reader["PostId"],
+                                UserName = (string)reader["UserName"]
                             };
                             comments.Add(comment);
                         }
+                        reader.Close();
                     }
                 }
             }
@@ -178,18 +180,17 @@ namespace Blog__Net.Data.ServicePost
             return comments;
         }
 
-
         public List<Comments> GetSonComment(List<Comments> comments)
         {
-            using (var connection = new MySqlConnection(_contexto.CadenaSQl))
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
                 foreach (var comment in comments)
                 {
-                    using (var command = new MySqlCommand("GetSonCommentsbyCommentId", connection))
+                    using (var command = new SqlCommand("GetSonCommentsbyCommentId", connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
-                        command.Parameters.AddWithValue("p_CommentId", comment.CommentId);
+                        command.Parameters.AddWithValue("@CommentId", comment.CommentId);
                         using (var reader = command.ExecuteReader())
                         {
                             var soncomments = new List<Comments>();
@@ -197,16 +198,17 @@ namespace Blog__Net.Data.ServicePost
                             {
                                 var soncomment = new Comments
                                 {
-                                    CommentId = reader.GetInt32("CommentId"),
-                                    Content = reader.GetString("Content"),
-                                    Creationdate = reader.GetDateTime("Creationdate"),
-                                    IdUser = reader.GetInt32("IdUser"),
-                                    PostId = reader.GetInt32("PostId"),
-                                    UserName = reader.GetString("UserName"),
+                                    CommentId = (int)reader["CommentId"],
+                                    Content = (string)reader["Content"],
+                                    Creationdate = (DateTime)reader["Creationdate"],
+                                    IdUser = (int)reader["IdUser"],
+                                    PostId = (int)reader["PostId"],
+                                    UserName = (string)reader["UserName"],
                                     CommentparentId = comment.CommentId
                                 };
                                 soncomments.Add(soncomment);
                             }
+                            reader.Close();
                             comment.SonComments = soncomments;
                         }
                     }
@@ -217,16 +219,16 @@ namespace Blog__Net.Data.ServicePost
 
         public List<Comments> GetGrandSonComment(List<Comments> comments)
         {
-            using (var connection = new MySqlConnection(_contexto.CadenaSQl))
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
                 foreach (var comment in comments)
                 {
                     if (comment.SonComments is not null)
                     {
-                        foreach (var soncomment in comment.SonComments)
+                        foreach(var soncomment in comment.SonComments)
                         {
-                            using (var command = new MySqlCommand("GetSonCommentsbyCommentId", connection))
+                            using (var command = new SqlCommand("GetSonCommentsbyCommentId", connection))
                             {
                                 command.CommandType = CommandType.StoredProcedure;
                                 command.Parameters.AddWithValue("@CommentId", soncomment.CommentId);
@@ -237,24 +239,27 @@ namespace Blog__Net.Data.ServicePost
                                     {
                                         var grandsoncomment = new Comments
                                         {
-                                            CommentId = reader.GetInt32("CommentId"),
-                                            Content = reader.GetString("Content"),
-                                            Creationdate = reader.GetDateTime("Creationdate"),
-                                            IdUser = reader.GetInt32("IdUser"),
-                                            PostId = reader.GetInt32("PostId"),
-                                            UserName = reader.GetString("UserName"),
+                                            CommentId = (int)reader["CommentId"],
+                                            Content = (string)reader["Content"],
+                                            Creationdate = (DateTime)reader["Creationdate"],
+                                            IdUser = (int)reader["IdUser"],
+                                            PostId = (int)reader["PostId"],
+                                            UserName = (string)reader["UserName"],
                                             CommentparentId = soncomment.CommentId,
                                             CommentgrandparentId = comment.CommentId
                                         };
                                         grandsoncomments.Add(grandsoncomment);
                                     }
+                                    reader.Close();
                                     soncomment.SonComments = grandsoncomments;
                                 }
                             }
                         }
                     }
+                    
                 }
             }
             return comments;
         }
     }
+}
