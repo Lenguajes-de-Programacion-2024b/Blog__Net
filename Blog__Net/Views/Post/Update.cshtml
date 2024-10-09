@@ -1,6 +1,7 @@
 ﻿@using Blog__Net.Models
 @using Blog__Net.Data.Enums
 @model Posts
+
 @{
     ViewData["Title"] = "Editar Publicación";
 }
@@ -12,24 +13,23 @@
     <input asp-for="PostId" type="hidden" />
 
     @if (User.IsInRole("Moderador"))
-
     {
-        <!-- Los moderadores solo pueden cambiar el estado -->
         <div class="form-group mb-4">
             <label for="status-input">Estado de la Publicación</label>
             <select id="status-input" asp-for="Estado" class="form-control">
-                <option value="Pendiente">Pendiente</option>
-                <option value="Revisado">Revisado</option>
-                <option value="Bloqueado">Bloqueado</option>
+                @foreach (var estado in Enum.GetValues(typeof(EstadoPostEnum)))
+                {
+                    var selected = Model.Estado == (EstadoPostEnum)estado ? "selected" : "";
+                    <option value="@estado.ToString()" selected="@selected">@estado</option>
+                }
             </select>
             <span asp-validation-for="Estado" class="text-danger"></span>
         </div>
+
+
     }
-
     else
-
     {
-        <!-- Los autores pueden editar el título, categoría y contenido -->
         <div class="form-group mb-4">
             <label for="title-input">Título</label>
             <input id="title-input" asp-for="Title" class="form-control" />
@@ -40,7 +40,6 @@
             <label for="category-input">Categoría</label>
             <select id="category-input" asp-for="Category" class="form-control">
                 @foreach (var categoria in CategoriaEnum.GetValues(typeof(CategoriaEnum)))
-
                 {
                     <option value="@categoria">@categoria.ToString()</option>
                 }
@@ -51,13 +50,10 @@
         <div class="form-group mb-5">
             <label for="content-input">Contenido</label>
             @if (Model != null)
-
             {
                 <textarea id="content-editor" name="Content" class="form-control">@Html.Raw(Model.Content)</textarea>
             }
-
             else
-
             {
                 <textarea id="content-editor" name="Content" class="form-control"></textarea>
             }
@@ -69,6 +65,7 @@
         <button type="submit" class="btn btn-warning btn-lg">Actualizar</button>
     </div>
 </form>
+
 @section Scripts {
     <script src="https://cdn.tiny.cloud/1/j9c4v1uaeil73i11s4eed8wdtttsfpvn55gxm3vdlp1218ns/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
@@ -88,3 +85,13 @@
         });
     </script>
 }
+
+
+
+
+
+
+
+
+
+
