@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace Blog__Net.Controllers
 {
@@ -27,6 +28,16 @@ namespace Blog__Net.Controllers
         [HttpPost]
         public async Task<IActionResult> Registered(InfoUser modelo)
         {
+            // Validación de la sintaxis del correo electrónico
+            string email = modelo.Email;
+            string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$"; // Expresión regular para validar correo
+
+            if (!Regex.IsMatch(email, emailPattern))
+            {
+                ViewData["MensajeEmail"] = "El formato del correo no es válido.";
+                return View(modelo);
+            }
+
             // Validación de requisitos de la contraseña
             bool mayuscula = false, minuscula = false, numero = false, carespecial = false;
             string passcode = modelo.Passcode;

@@ -54,6 +54,7 @@ namespace Blog_.Net.Controllers
                     DateTime fc = DateTime.UtcNow;
                     command.Parameters.AddWithValue("@Publicationdate", fc);
                     command.Parameters.AddWithValue("@IdUser", idUser);
+                    command.Parameters.AddWithValue("@Estado", post.Estado);
                     command.ExecuteNonQuery();
                 }
             }
