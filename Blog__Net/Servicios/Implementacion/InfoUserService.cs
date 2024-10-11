@@ -24,10 +24,9 @@ namespace Blog__Net.Servicios.Implementacion
         public async Task<string> GetRoleNameById(int rolId)
         {
             var role = await _dbContext.Roles.FindAsync(rolId);
-            return role?.RolName; // Devuelve el nombre del rol o null si no se encuentra
+            return role?.RolName; 
         }
 
-        // Método para verificar si un usuario o correo ya existe
         public async Task<bool> UserExists(string userName, string email)
         {
             return await _dbContext.InfoUsers

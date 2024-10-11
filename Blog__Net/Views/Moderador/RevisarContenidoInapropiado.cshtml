@@ -1,0 +1,29 @@
+﻿@model List<Blog__Net.Models.Posts> 
+
+<h2>Posts con Contenido Inapropiado</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Contenido</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var post in Model)
+        {
+            <tr>
+                <td>@post.Title</td>
+                <td>@post.Content</td>
+                
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p>No se encontraron posts con contenido inapropiado.</p>
+}
+
