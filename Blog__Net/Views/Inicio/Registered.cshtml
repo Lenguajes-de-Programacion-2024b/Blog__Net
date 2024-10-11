@@ -39,6 +39,13 @@
                             <input type="text" name="Email" class="form-control input_user" value="" placeholder="Correo">
                         </div>
 
+                        @if (ViewData["MensajeEmail"] != null)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @ViewData["MensajeEmail"]
+                            </div>
+                        }
+
                         @if (ViewData["Message"] != null)
                         {
                             <div class="alert alert-danger" role="alert">
