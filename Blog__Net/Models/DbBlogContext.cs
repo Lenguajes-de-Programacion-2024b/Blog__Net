@@ -19,6 +19,8 @@ public partial class DbBlogContext : DbContext
 
     public virtual DbSet<Posts> Posts { get; set; }
 
+    public virtual DbSet<PostLike> PostLike { get; set; }
+
     public virtual DbSet<Roles> Roles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }

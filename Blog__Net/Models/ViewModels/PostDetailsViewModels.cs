@@ -7,5 +7,7 @@
         public List<Comments>? SonComments { get; set; }
         public List<Comments>? GrandSonComments { get; set; }
         public List<Posts>? RecentPosts { get; set; }
+        public int LikesCount { get; set; }
+        public bool UserHasLiked { get; set; }
     }
 }

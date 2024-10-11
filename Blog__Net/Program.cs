@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Blog__Net.Data;
+using Blog__Net.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,8 @@ builder.Services.AddControllersWithViews(options => {
 
     );
 });
+
+builder.Services.AddScoped<IPostLikesRepo, PostLikesRepo>();
 
 var app = builder.Build();
 

@@ -21,4 +21,9 @@ public partial class Posts
     public virtual ICollection<Comments> Comments { get; set; } = new List<Comments>();
     [NotMapped]
     public string? UserName { get; set; }
+
+    public ICollection<PostLike> Likes { get; set; }
+
+    [NotMapped]
+    public int LikesCount { get; set; }
 }

@@ -122,8 +122,9 @@ footer {
     background: #004080;
     color: #fff;
     text-align: center;
-    padding: 10px 0;
-    position: fixed;
+    padding: 20px 0;
+    position: relative;
+    clear: both;
     width: 100%;
     bottom: 0;
 }
