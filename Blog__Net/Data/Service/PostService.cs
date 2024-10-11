@@ -1,5 +1,6 @@
 ﻿using Blog__Net.Data.Enums;
 using Blog__Net.Models;
+using Blog__Net.Resources;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Data.SqlClient;
 using NuGet.Protocol.Plugins;
@@ -39,7 +40,8 @@ namespace Blog__Net.Data.ServicePost
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
                                 Publicationdate = (DateTime)reader["Publicationdate"],
                                 UserName = (string)reader["UserName"],
-                                IdUser = (int)reader["IdUser"]
+                                IdUser = (int)reader["IdUser"],
+                                LikesCount = (int)reader["LikesCount"]
                             };
                         }
                         reader.Close();
@@ -69,7 +71,8 @@ namespace Blog__Net.Data.ServicePost
                                 Title = (string)reader["Title"],
                                 Content = (string)reader["Content"],
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
-                                Publicationdate = (DateTime)reader["Publicationdate"]
+                                Publicationdate = (DateTime)reader["Publicationdate"],                               
+                                LikesCount = (int)reader["likesCount"]
                             };
                             posts.Add(post);
                         }
@@ -101,7 +104,8 @@ namespace Blog__Net.Data.ServicePost
                                 Title = (string)reader["Title"],
                                 Content = (string)reader["Content"],
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
-                                Publicationdate = (DateTime)reader["Publicationdate"]
+                                Publicationdate = (DateTime)reader["Publicationdate"],
+                                LikesCount = (int)reader["likesCount"]
                             };
                             posts.Add(post);
                         }
@@ -136,7 +140,8 @@ namespace Blog__Net.Data.ServicePost
                                 Content = (string)reader["Content"],
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
                                 Publicationdate = (DateTime)reader["Publicationdate"],
-                                UserName = (string)reader["UserName"]
+                                UserName = (string)reader["UserName"],
+                                LikesCount = (int)reader["likesCount"]
                             };
                             posts.Add(post);
                         }

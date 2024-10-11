@@ -7,6 +7,8 @@ using Blog__Net.Data.Enums;
 using X.PagedList;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Blog__Net.Resources;
+using Microsoft.Extensions.Hosting;
 
 namespace Blog__Net.Controllers;
 
@@ -15,14 +17,16 @@ public class HomeController : Controller
 {
     private readonly Contexto _contexto;
     private readonly PostService _postservice;
+    private IPostLikesRepo postLikesRepo;
 
-    public HomeController(Contexto contexto)
+    public HomeController(Contexto contexto, IPostLikesRepo postLikesRepo)
     {
         _contexto = contexto;
         _postservice = new PostService(contexto);
+        this.postLikesRepo = postLikesRepo;
     }
 
-    public IActionResult Index(string category, string search, DateTime? publicationDate, int? page)
+    public async Task<IActionResult> Index(string category, string search, DateTime? publicationDate, int? page)
     {
         var posts = new List<Posts>();
 
@@ -37,6 +41,7 @@ public class HomeController : Controller
 
             if (posts.Count == 0)
                 ViewBag.Error = $"No se encontraron publicaciones en la categoría {categoriaEnum}.";
+            
         }
         else
         {

@@ -2,31 +2,38 @@
 using Blog__Net.Data.ServicePost;
 using Blog__Net.Models;
 using Blog__Net.Models.ViewModels;
+using Blog__Net.Resources;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using NuGet.Configuration;
 using System.Data;
+using System.Security.Claims;
 
 namespace Blog_.Net.Controllers
 {
     public class PostController : Controller
     {
         private readonly Contexto _contexto;
+        private readonly DbBlogContext _dbBlogContext;
+        private readonly IPostLikesRepo postLikesRepo;
         private readonly PostService _postservice;
 
-        public PostController(Contexto con)
+        public PostController(Contexto con, IPostLikesRepo postLikesRepo)
         {
             _contexto = con;
+            this.postLikesRepo = postLikesRepo;
             _postservice = new PostService(con);
         }
 
         [Authorize(Roles = "Autor")]
         public IActionResult Create()
         {
-
+            
             return View(new Posts());
         }
 
@@ -54,9 +61,15 @@ namespace Blog_.Net.Controllers
                     DateTime fc = DateTime.UtcNow;
                     command.Parameters.AddWithValue("@Publicationdate", fc);
                     command.Parameters.AddWithValue("@IdUser", idUser);
+                    command.Parameters.AddWithValue("@Estado", 0);
+                    command.Parameters.AddWithValue("@likesCount", 0);
                     command.ExecuteNonQuery();
                 }
             }
+
+            // Inicializando el contador de likes a cero
+            post.LikesCount = 0;
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -143,9 +156,15 @@ namespace Blog_.Net.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(int id)
         {
             var post = _postservice.GetpostbyId(id);
+
+            if (post == null) 
+            { 
+                return NotFound(); 
+            }
+
             var comments = _postservice.ObtainCommentsByPostId(id);
             comments = _postservice.GetSonComment(comments);
             comments = _postservice.GetGrandSonComment(comments);
@@ -153,6 +172,7 @@ namespace Blog_.Net.Controllers
             var model = new PostDetailsViewModels
             {
                 Post = post,
+                LikesCount = post.LikesCount,
                 MainComments = comments.Where(c => c.CommentparentId == null && c.CommentgrandparentId == null).ToList(),
                 SonComments = comments.Where(c => c.CommentparentId != null && c.CommentgrandparentId != null).ToList(),
                 GrandSonComments = comments.Where(c => c.CommentgrandparentId != null).ToList(),
@@ -201,5 +221,58 @@ namespace Blog_.Net.Controllers
                 return RedirectToAction("Details", "Post", new { id = postId });
             }
         }
+
+        [HttpPost]
+        [Authorize(Roles = "Autor, Lector")]
+        public async Task<ActionResult> LikePost(int postId, Guid userId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out userId))
+                userId = Guid.Parse(userIdClaim.Value);
+
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
+            {
+                connection.Open();
+                using (var command = new SqlCommand("AddLikeAndUpdateCount", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@PostId", postId);
+                    command.Parameters.AddWithValue("@UserId", userId);
+
+                    // Ejecutar el procedimiento
+                    var rowsAffected = await command.ExecuteNonQueryAsync();
+                    if (rowsAffected == 0)
+                    {
+                        return BadRequest("Ya le has dado like a este post.");
+                        //TempData["LikeAlert"] = "Ya le has dado like a este post.";
+                    }
+                }
+            }
+
+            // Redirigir a la página de detalles del post
+            return RedirectToAction("Details", new { id = postId });
+        }
+
+
+
+        [HttpPost]
+        public async Task<ActionResult> UpdateLikesCount(int postId)
+        {
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
+            {
+                connection.Open();
+                using (var command = new SqlCommand("IncrementLikesCount", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@PostId", postId);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+
+            return RedirectToAction("Details", new { id = postId });
+        }
+
+            
     }
 }
