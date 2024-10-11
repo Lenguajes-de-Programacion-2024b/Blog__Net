@@ -61,7 +61,7 @@ namespace Blog_.Net.Controllers
                     DateTime fc = DateTime.UtcNow;
                     command.Parameters.AddWithValue("@Publicationdate", fc);
                     command.Parameters.AddWithValue("@IdUser", idUser);
-                    command.Parameters.AddWithValue("@Estado", 0);
+                    command.Parameters.AddWithValue("@Estado", post.Estado);
                     command.Parameters.AddWithValue("@likesCount", 0);
                     command.ExecuteNonQuery();
                 }
@@ -223,7 +223,7 @@ namespace Blog_.Net.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Autor, Lector")]
+        [Authorize(Roles = "Lector")]
         public async Task<ActionResult> LikePost(int postId, Guid userId)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
