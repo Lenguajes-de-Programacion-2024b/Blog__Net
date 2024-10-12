@@ -1,6 +1,7 @@
 ﻿using Blog__Net.Data.Enums;
 using Blog__Net.Models;
 using Blog__Net.Resources;
+using Blog__Net.Services;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Data.SqlClient;
 using NuGet.Protocol.Plugins;
@@ -65,22 +66,67 @@ namespace Blog__Net.Data.ServicePost
                     {
                         while (reader.Read())
                         {
-                            var post = new Posts
+                            // Obtén el valor del estado del post
+                            var estadoPost = (EstadoPostEnum)Enum.Parse(typeof(EstadoPostEnum), (string)reader["Estado"]);
+
+                            // Solo añadir posts que no estén bloqueados
+                            if (estadoPost != EstadoPostEnum.Bloqueado)
                             {
-                                PostId = (int)reader["PostId"],
-                                Title = (string)reader["Title"],
-                                Content = (string)reader["Content"],
-                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
-                                Publicationdate = (DateTime)reader["Publicationdate"],                               
-                                LikesCount = (int)reader["likesCount"]
-                            };
-                            posts.Add(post);
+                                var post = new Posts
+                                {
+                                    PostId = (int)reader["PostId"],
+                                    Title = (string)reader["Title"],
+                                    Content = (string)reader["Content"],
+                                    Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                    Publicationdate = (DateTime)reader["Publicationdate"],
+                                    LikesCount = (int)reader["likesCount"],
+                                    Estado = estadoPost // Asegúrate de que el modelo tiene este campo
+                                };
+
+                                posts.Add(post);
+                            }
                         }
                     }
                 }
             }
 
             return posts;
+        }
+        public List<Posts> ObtenerPostsInapropiados()
+        {
+            var postsInapropiados = new List<Posts>();
+
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
+            {
+                connection.Open();
+                using (var cmd = new SqlCommand("GetallPost", connection)) // O el nombre del procedimiento que usas
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var content = (string)reader["Content"];
+                            // Filtrar usando la clase FiltroContenido
+                            if (FiltroContenido.ContienePalabrasInapropiadas(content))
+                            {
+                                var post = new Posts
+                                {
+                                    PostId = (int)reader["PostId"],
+                                    Title = (string)reader["Title"],
+                                    Content = content,
+                                    Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                    Publicationdate = (DateTime)reader["Publicationdate"],
+                                    LikesCount = (int)reader["LikesCount"]
+                                };
+                                postsInapropiados.Add(post);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return postsInapropiados;
         }
 
         public List<Posts> ObtainPostsByCategory(CategoriaEnum categoria)

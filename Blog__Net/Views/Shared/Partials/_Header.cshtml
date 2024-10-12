@@ -5,55 +5,58 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Blog__Net</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="@Url.Action("Index", "Home")">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("Index", "Home", new{category="Noticias"})">Noticias</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("Index", "Home", new{category="Tecnologia"})">Tecnologia</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("Index", "Home", new{category="Videojuegos"})">Videojuegos</a>
-                </li>
-            </ul>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="@Url.Action("Index", "Home")">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Index", "Home", new { category = "Noticias" })">Noticias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Index", "Home", new { category = "Tecnologia" })">Tecnología</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Index", "Home", new { category = "Videojuegos" })">Videojuegos</a>
+                    </li>
+                </ul>
 
                 <form method="get" asp-controller="Home" asp-action="Index">
-                    <!-- Campo único para buscar por título o autor -->
                     <input type="text" name="search" placeholder="Buscar por título o autor" />
-
-                    <!-- Campo de fecha -->
                     <input type="date" name="publicationDate" placeholder="Buscar por fecha" />
-
                     <button type="submit">Buscar</button>
                 </form>
 
-            <ul class="navbar-nav m5-auto">
-                <li class="nav-item dropdown">
-                    <a class ="nav-link dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown">
-                    @User.FindFirstValue(ClaimTypes.Name)
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item" asp-action="Profile" asp-controller="User">Mi perfil</a>
-                        </li>
-                        @if(User.IsInRole("Autor"))
-                        {
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown">
+                            @User.FindFirstValue(ClaimTypes.Name)
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a class="dropdown-item" asp-action="Create" asp-controller="Post">Crear Post</a>
+                                <a class="dropdown-item" asp-action="Profile" asp-controller="User">Mi perfil</a>
                             </li>
-                        }
-                        <li>
-                            <a class="dropdown-item" asp-action="logout" asp-controller="Home">Cerrar Sesion</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+                            @if (User.IsInRole("Autor"))
+                            {
+                                <li>
+                                    <a class="dropdown-item" asp-action="Create" asp-controller="Post">Crear Post</a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Moderador"))
+                            {
+                                <li>
+                                    <a class="dropdown-item" asp-action="RevisarContenidoInapropiado" asp-controller="Moderador">Revisar Contenido Inapropiado</a>
+                                </li>
+                            }
+                            <li>
+                                <a class="dropdown-item" asp-action="Logout" asp-controller="Home">Cerrar Sesión</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
 
-        </div>
+            </div>
         </div>
     </nav>
 </header>
+
