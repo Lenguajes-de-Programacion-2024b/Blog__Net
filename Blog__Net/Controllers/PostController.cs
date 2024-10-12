@@ -6,6 +6,7 @@ using Blog__Net.Resources;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -224,11 +225,12 @@ namespace Blog_.Net.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Lector")]
-        public async Task<ActionResult> LikePost(int postId, Guid userId)
+        public async Task<ActionResult> LikePost(int postId)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out userId))
-                userId = Guid.Parse(userIdClaim.Value);
+            int? userId = null;
+            var userIdClaim = User.FindFirst("IdUser");
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
+                userId = parsedUserId;
 
             using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
@@ -240,12 +242,7 @@ namespace Blog_.Net.Controllers
                     command.Parameters.AddWithValue("@UserId", userId);
 
                     // Ejecutar el procedimiento
-                    var rowsAffected = await command.ExecuteNonQueryAsync();
-                    if (rowsAffected == 0)
-                    {
-                        return BadRequest("Ya le has dado like a este post.");
-                        //TempData["LikeAlert"] = "Ya le has dado like a este post.";
-                    }
+                    command.ExecuteNonQuery();
                 }
             }
 
