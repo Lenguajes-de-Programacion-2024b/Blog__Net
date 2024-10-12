@@ -48,6 +48,12 @@
                                     <a class="dropdown-item" asp-action="RevisarContenidoInapropiado" asp-controller="Moderador">Revisar Contenido Inapropiado</a>
                                 </li>
                             }
+                            @if (User.IsInRole("Lector"))
+                            {
+                                <li>
+                                    <a class="dropdown-item" asp-action="LikedPosts" asp-controller="LikedPost">Ver mis Likes</a>
+                                </li>
+                            }
                             <li>
                                 <a class="dropdown-item" asp-action="Logout" asp-controller="Home">Cerrar Sesión</a>
                             </li>

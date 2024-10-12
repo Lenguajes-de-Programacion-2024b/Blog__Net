@@ -99,21 +99,23 @@ namespace Blog__Net.Data.ServicePost
             using (var connection = new SqlConnection(_contexto.CadenaSQl))
             {
                 connection.Open();
-                using (var cmd = new SqlCommand("GetallPost", connection)) // O el nombre del procedimiento que usas
+                using (var cmd = new SqlCommand("GetallPost", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
+                            var title = (string)reader["Title"];
                             var content = (string)reader["Content"];
-                            // Filtrar usando la clase FiltroContenido
-                            if (FiltroContenido.ContienePalabrasInapropiadas(content))
+
+
+                            if (FiltroContenido.ContienePalabrasInapropiadas(title) || FiltroContenido.ContienePalabrasInapropiadas(content))
                             {
                                 var post = new Posts
                                 {
                                     PostId = (int)reader["PostId"],
-                                    Title = (string)reader["Title"],
+                                    Title = title,
                                     Content = content,
                                     Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
                                     Publicationdate = (DateTime)reader["Publicationdate"],
@@ -161,6 +163,40 @@ namespace Blog__Net.Data.ServicePost
 
             return posts;
         }
+
+        public List<Posts> ObtainLikedPostsByUser(int? userId)
+        {
+            var posts = new List<Posts>();
+
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
+            {
+                connection.Open();
+                using (SqlCommand cmd = new("getPostsByUserLike", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@UserId", userId); // Pasar el ID del usuario
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var post = new Posts
+                            {
+                                PostId = (int)reader["PostId"],
+                                Title = (string)reader["Title"],
+                                Content = (string)reader["Content"],
+                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                Publicationdate = (DateTime)reader["Publicationdate"],
+                                LikesCount = (int)reader["LikesCount"]
+                            };
+                            posts.Add(post);
+                        }
+                    }
+                }
+            }
+
+            return posts;
+        }
+
 
         public List<Posts> ObtainPostsByFilter(string search = null, DateTime? publicationDate = null)
         {
