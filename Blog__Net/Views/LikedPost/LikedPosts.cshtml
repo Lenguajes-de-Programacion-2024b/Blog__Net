@@ -1,0 +1,37 @@
+﻿@model List<Posts>
+
+<h2>Posts a los que le has dado likes</h2>
+<p>Se cargó la vista correctamente.</p>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No le has dado like a ningun post.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Categoría</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var post in Model)
+            {
+                <tr>
+                    <td>
+                        <a class="list-group-item list-group-item-action" href="@Url.Action("Details","Post",new{id=post.PostId})">
+                            @post.Title
+                        </a>
+                    </td>
+                    <td>
+                        <a class="list-group-item list-group-item-action" href="@Url.Action("Details","Post",new{id=post.PostId})">
+                            @post.Category
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

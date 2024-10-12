@@ -139,13 +139,20 @@ namespace Blog_.Net.Controllers
                     // Si tiene comentarios, no permitimos eliminar
                     if (hasComments > 0)
                     {
-                        // Podrías mostrar un mensaje de error o redirigir a una página específica
                         TempData["ErrorMessage"] = "No se puede eliminar un post que tiene comentarios.";
                         return RedirectToAction("Index", "Home");
                     }
                 }
 
-                // Si no tiene comentarios, procedemos a eliminarlo
+                // Eliminar los likes relacionados con el post
+                using (var deleteLikesCommand = new SqlCommand("DeletePostLikes", connection))
+                {
+                    deleteLikesCommand.CommandType = CommandType.StoredProcedure;
+                    deleteLikesCommand.Parameters.AddWithValue("@PostId", Id);
+                    deleteLikesCommand.ExecuteNonQuery();
+                }
+
+                // Si no tiene comentarios, procedemos a eliminar el post
                 using (var deleteCommand = new SqlCommand("DeletePost", connection))
                 {
                     deleteCommand.CommandType = CommandType.StoredProcedure;
@@ -270,6 +277,5 @@ namespace Blog_.Net.Controllers
             return RedirectToAction("Details", new { id = postId });
         }
 
-            
     }
 }
