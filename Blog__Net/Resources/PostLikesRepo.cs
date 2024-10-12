@@ -37,7 +37,7 @@ namespace Blog__Net.Resources
         }
 
         // Método para agregar un like a una publicación
-        public async Task<bool> AddLike(Guid userId, int postId)
+        public async Task<bool> AddLike(int userId, int postId)
         {
             var existingLike = await _dbBlogContext.PostLike
                 .FirstOrDefaultAsync(p => p.UserId == userId && p.PostId == postId);
@@ -60,7 +60,7 @@ namespace Blog__Net.Resources
         }
 
         // Método para eliminar un like (anteriormente implementado)
-        public async Task<bool> RemoveLike(Guid userId, int postId)
+        public async Task<bool> RemoveLike(int userId, int postId)
         {
             var existingLike = await _dbBlogContext.PostLike
                 .FirstOrDefaultAsync(p => p.UserId == userId && p.PostId == postId);
