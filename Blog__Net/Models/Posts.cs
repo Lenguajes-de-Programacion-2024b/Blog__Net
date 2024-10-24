@@ -22,12 +22,9 @@ public partial class Posts
     [NotMapped]
     public string? UserName { get; set; }
 
-<<<<<<< HEAD
     public ICollection<PostLike> TotalLikes { get; set; }
-=======
     public ICollection<PostLike> Likes { get; set; }
 
     [NotMapped]
     public int LikesCount { get; set; }
->>>>>>> refs/remotes/origin/Camilo
 }
