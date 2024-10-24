@@ -33,9 +33,6 @@
                             @User.FindFirstValue(ClaimTypes.Name)
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" asp-action="Profile" asp-controller="User">Mi perfil</a>
-                            </li>
                             @if (User.IsInRole("Autor"))
                             {
                                 <li>
