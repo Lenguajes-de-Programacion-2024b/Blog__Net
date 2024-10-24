@@ -8,13 +8,17 @@ public class Contexto
 {
     public string CadenaSQl { get; }
 
-    public Contexto(string Valor)
-    {
-        CadenaSQl = Valor;
+        public Contexto(string Valor)
+        {
+            CadenaSQl = Valor;
+        }
     }
 
     public DbSet<PostLike> PostLikes { get; set; }
 
     public virtual DbSet<Posts> Posts { get; set; }
 }
+
+
+
 

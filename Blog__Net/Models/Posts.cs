@@ -22,6 +22,7 @@ public partial class Posts
     [NotMapped]
     public string? UserName { get; set; }
 
+    public ICollection<PostLike> TotalLikes { get; set; }
     public ICollection<PostLike> Likes { get; set; }
 
     [NotMapped]
