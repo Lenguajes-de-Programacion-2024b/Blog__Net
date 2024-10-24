@@ -2,31 +2,39 @@
 using Blog__Net.Data.ServicePost;
 using Blog__Net.Models;
 using Blog__Net.Models.ViewModels;
+using Blog__Net.Resources;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using NuGet.Configuration;
 using System.Data;
+using System.Security.Claims;
 
 namespace Blog_.Net.Controllers
 {
     public class PostController : Controller
     {
         private readonly Contexto _contexto;
+        private readonly DbBlogContext _dbBlogContext;
+        private readonly IPostLikesRepo postLikesRepo;
         private readonly PostService _postservice;
 
-        public PostController(Contexto con)
+        public PostController(Contexto con, IPostLikesRepo postLikesRepo)
         {
             _contexto = con;
+            this.postLikesRepo = postLikesRepo;
             _postservice = new PostService(con);
         }
 
         [Authorize(Roles = "Autor")]
         public IActionResult Create()
         {
-
+            
             return View(new Posts());
         }
 
@@ -54,9 +62,15 @@ namespace Blog_.Net.Controllers
                     DateTime fc = DateTime.UtcNow;
                     command.Parameters.AddWithValue("@Publicationdate", fc);
                     command.Parameters.AddWithValue("@IdUser", idUser);
+                    command.Parameters.AddWithValue("@Estado", post.Estado);
+                    command.Parameters.AddWithValue("@likesCount", 0);
                     command.ExecuteNonQuery();
                 }
             }
+
+            // Inicializando el contador de likes a cero
+            post.LikesCount = 0;
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -125,13 +139,20 @@ namespace Blog_.Net.Controllers
                     // Si tiene comentarios, no permitimos eliminar
                     if (hasComments > 0)
                     {
-                        // Podrías mostrar un mensaje de error o redirigir a una página específica
                         TempData["ErrorMessage"] = "No se puede eliminar un post que tiene comentarios.";
                         return RedirectToAction("Index", "Home");
                     }
                 }
 
-                // Si no tiene comentarios, procedemos a eliminarlo
+                // Eliminar los likes relacionados con el post
+                using (var deleteLikesCommand = new SqlCommand("DeletePostLikes", connection))
+                {
+                    deleteLikesCommand.CommandType = CommandType.StoredProcedure;
+                    deleteLikesCommand.Parameters.AddWithValue("@PostId", Id);
+                    deleteLikesCommand.ExecuteNonQuery();
+                }
+
+                // Si no tiene comentarios, procedemos a eliminar el post
                 using (var deleteCommand = new SqlCommand("DeletePost", connection))
                 {
                     deleteCommand.CommandType = CommandType.StoredProcedure;
@@ -143,9 +164,15 @@ namespace Blog_.Net.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(int id)
         {
             var post = _postservice.GetpostbyId(id);
+
+            if (post == null) 
+            { 
+                return NotFound(); 
+            }
+
             var comments = _postservice.ObtainCommentsByPostId(id);
             comments = _postservice.GetSonComment(comments);
             comments = _postservice.GetGrandSonComment(comments);
@@ -153,6 +180,7 @@ namespace Blog_.Net.Controllers
             var model = new PostDetailsViewModels
             {
                 Post = post,
+                LikesCount = post.LikesCount,
                 MainComments = comments.Where(c => c.CommentparentId == null && c.CommentgrandparentId == null).ToList(),
                 SonComments = comments.Where(c => c.CommentparentId != null && c.CommentgrandparentId != null).ToList(),
                 GrandSonComments = comments.Where(c => c.CommentgrandparentId != null).ToList(),
@@ -201,5 +229,53 @@ namespace Blog_.Net.Controllers
                 return RedirectToAction("Details", "Post", new { id = postId });
             }
         }
+
+        [HttpPost]
+        [Authorize(Roles = "Lector")]
+        public async Task<ActionResult> LikePost(int postId)
+        {
+            int? userId = null;
+            var userIdClaim = User.FindFirst("IdUser");
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
+                userId = parsedUserId;
+
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
+            {
+                connection.Open();
+                using (var command = new SqlCommand("AddLikeAndUpdateCount", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@PostId", postId);
+                    command.Parameters.AddWithValue("@UserId", userId);
+
+                    // Ejecutar el procedimiento
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            // Redirigir a la página de detalles del post
+            return RedirectToAction("Details", new { id = postId });
+        }
+
+
+
+        [HttpPost]
+        public async Task<ActionResult> UpdateLikesCount(int postId)
+        {
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
+            {
+                connection.Open();
+                using (var command = new SqlCommand("IncrementLikesCount", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@PostId", postId);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+
+            return RedirectToAction("Details", new { id = postId });
+        }
+
     }
 }

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Blog__Net.Data;
+using Blog__Net.Resources;
+using Blog__Net.Data.ServicePost; // Asegúrate de tener este using para PostService
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +21,12 @@ builder.Services.AddDbContext<DbBlogContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("cadenaSQL"));
 });
 
+// Registrar los servicios necesarios
 builder.Services.AddScoped<IInfoUserService, InfoUserService>();
+builder.Services.AddScoped<IPostLikesRepo, PostLikesRepo>();
+
+// Asegúrate de registrar PostService
+builder.Services.AddScoped<PostService>(); // Agregar esta línea
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -32,10 +39,9 @@ builder.Services.AddControllersWithViews(options => {
     options.Filters.Add(
         new ResponseCacheAttribute
         {
-            NoStore =true,
-            Location=ResponseCacheLocation.None,
+            NoStore = true,
+            Location = ResponseCacheLocation.None,
         }
-
     );
 });
 

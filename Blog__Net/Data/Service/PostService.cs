@@ -1,5 +1,7 @@
 ﻿using Blog__Net.Data.Enums;
 using Blog__Net.Models;
+using Blog__Net.Resources;
+using Blog__Net.Services;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Data.SqlClient;
 using NuGet.Protocol.Plugins;
@@ -39,7 +41,8 @@ namespace Blog__Net.Data.ServicePost
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
                                 Publicationdate = (DateTime)reader["Publicationdate"],
                                 UserName = (string)reader["UserName"],
-                                IdUser = (int)reader["IdUser"]
+                                IdUser = (int)reader["IdUser"],
+                                LikesCount = (int)reader["LikesCount"]
                             };
                         }
                         reader.Close();
@@ -63,21 +66,69 @@ namespace Blog__Net.Data.ServicePost
                     {
                         while (reader.Read())
                         {
-                            var post = new Posts
+                            // Obtén el valor del estado del post
+                            var estadoPost = (EstadoPostEnum)Enum.Parse(typeof(EstadoPostEnum), (string)reader["Estado"]);
+
+                            // Solo añadir posts que no estén bloqueados
+                            if (estadoPost != EstadoPostEnum.Bloqueado)
                             {
-                                PostId = (int)reader["PostId"],
-                                Title = (string)reader["Title"],
-                                Content = (string)reader["Content"],
-                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
-                                Publicationdate = (DateTime)reader["Publicationdate"]
-                            };
-                            posts.Add(post);
+                                var post = new Posts
+                                {
+                                    PostId = (int)reader["PostId"],
+                                    Title = (string)reader["Title"],
+                                    Content = (string)reader["Content"],
+                                    Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                    Publicationdate = (DateTime)reader["Publicationdate"],
+                                    LikesCount = (int)reader["likesCount"],
+                                    Estado = estadoPost // Asegúrate de que el modelo tiene este campo
+                                };
+
+                                posts.Add(post);
+                            }
                         }
                     }
                 }
             }
 
             return posts;
+        }
+        public List<Posts> ObtenerPostsInapropiados()
+        {
+            var postsInapropiados = new List<Posts>();
+
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
+            {
+                connection.Open();
+                using (var cmd = new SqlCommand("GetallPost", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var title = (string)reader["Title"];
+                            var content = (string)reader["Content"];
+
+
+                            if (FiltroContenido.ContienePalabrasInapropiadas(title) || FiltroContenido.ContienePalabrasInapropiadas(content))
+                            {
+                                var post = new Posts
+                                {
+                                    PostId = (int)reader["PostId"],
+                                    Title = title,
+                                    Content = content,
+                                    Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                    Publicationdate = (DateTime)reader["Publicationdate"],
+                                    LikesCount = (int)reader["LikesCount"]
+                                };
+                                postsInapropiados.Add(post);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return postsInapropiados;
         }
 
         public List<Posts> ObtainPostsByCategory(CategoriaEnum categoria)
@@ -101,7 +152,8 @@ namespace Blog__Net.Data.ServicePost
                                 Title = (string)reader["Title"],
                                 Content = (string)reader["Content"],
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
-                                Publicationdate = (DateTime)reader["Publicationdate"]
+                                Publicationdate = (DateTime)reader["Publicationdate"],
+                                LikesCount = (int)reader["likesCount"]
                             };
                             posts.Add(post);
                         }
@@ -111,6 +163,40 @@ namespace Blog__Net.Data.ServicePost
 
             return posts;
         }
+
+        public List<Posts> ObtainLikedPostsByUser(int? userId)
+        {
+            var posts = new List<Posts>();
+
+            using (var connection = new SqlConnection(_contexto.CadenaSQl))
+            {
+                connection.Open();
+                using (SqlCommand cmd = new("getPostsByUserLike", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@UserId", userId); // Pasar el ID del usuario
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var post = new Posts
+                            {
+                                PostId = (int)reader["PostId"],
+                                Title = (string)reader["Title"],
+                                Content = (string)reader["Content"],
+                                Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
+                                Publicationdate = (DateTime)reader["Publicationdate"],
+                                LikesCount = (int)reader["LikesCount"]
+                            };
+                            posts.Add(post);
+                        }
+                    }
+                }
+            }
+
+            return posts;
+        }
+
 
         public List<Posts> ObtainPostsByFilter(string search = null, DateTime? publicationDate = null)
         {
@@ -136,7 +222,8 @@ namespace Blog__Net.Data.ServicePost
                                 Content = (string)reader["Content"],
                                 Category = (CategoriaEnum)Enum.Parse(typeof(CategoriaEnum), (string)reader["Category"]),
                                 Publicationdate = (DateTime)reader["Publicationdate"],
-                                UserName = (string)reader["UserName"]
+                                UserName = (string)reader["UserName"],
+                                LikesCount = (int)reader["likesCount"]
                             };
                             posts.Add(post);
                         }

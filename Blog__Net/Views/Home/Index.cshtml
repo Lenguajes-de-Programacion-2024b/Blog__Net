@@ -10,7 +10,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h1 class="display-4 mb-4">Bienvenido/a a mi Blog</h1>
+            <h1 class="display-4 mb-4">Todos los posts...</h1>
             <p>Aqui puedes encontrar las últimas publicaciones sobre @ViewBag.CategoriaDescription.</p>
         </div>
     </div>
@@ -34,6 +34,10 @@
                             <a asp-route-id="@post.PostId" asp-action="Details" asp-controller="Post" 
                             class="btn btn-sm btn-primary">Ver publicación</a>
                         </div>
+                    </div>
+                    <div class="mb-3">
+                        <!-- Mostrando contador de likes -->
+                        <span>Likes: @post.LikesCount</span>
                     </div>
                 </div>
             </div>
